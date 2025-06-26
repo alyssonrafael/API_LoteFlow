@@ -1,0 +1,5 @@
+#dependencies
+node_modules
+#enviorments variebles
+.env
+/src/generated/prisma
