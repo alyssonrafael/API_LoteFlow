@@ -30,8 +30,11 @@ export async function registerUser(data: {
   fullName: string;
   password: string;
 }) {
+
+  const formattedAccessCode = data.accessCode.toUpperCase();
+
   const company = await prisma.company.findUnique({
-    where: { accessCode: data.accessCode },
+    where: { accessCode: formattedAccessCode },
   });
 
   if (!company) {

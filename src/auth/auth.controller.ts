@@ -61,7 +61,7 @@ export async function createUser(
     });
 
     res.status(201).json({
-      message: "Usuario criado com sucesso!",
+      message: "Usuario criado com sucesso! Aguarde a altorização do Administrador ",
       user,
     });
     return;

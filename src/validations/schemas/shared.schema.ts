@@ -11,7 +11,11 @@ export const passwordField = z
 // Código da empresa (alfanumérico com 6 caracteres)
 export const companyCodeField = z
   .string()
-  .regex(/^[A-Za-z]{3}[0-9]{3}$/, "Código da empresa deve conter 3 letras seguidas de 3 números")
+  .regex(
+    /^[A-Za-z]{3}[0-9]{3}$/,
+    "Código da empresa deve conter 3 letras maiúsculas seguidas de 3 números"
+  )
+  .transform((val) => val.toUpperCase());
 
 // Nome da empresa
 export const companyNameField = z
@@ -36,11 +40,11 @@ export const phoneField = z
 //nome do usuario
 export const fullNameField = z
   .string()
-  .min(4,"O nome deve conter pelo menos 4 caracteres.")
-  .max(60, "O nome deve conter no máximo 60 caracteres")
+  .min(4, "O nome deve conter pelo menos 4 caracteres.")
+  .max(60, "O nome deve conter no máximo 60 caracteres");
 
 //user name
 export const userNameField = z
   .string()
-  .min(6,"O nome deve conter pelo menos 6 caracteres.")
-  .max(10, "O nome deve conter no máximo 10 caracteres")
+  .min(6, "O nome deve conter pelo menos 6 caracteres.")
+  .max(10, "O nome deve conter no máximo 10 caracteres");
