@@ -1,6 +1,8 @@
+import { UserRole } from "./types";
+
 export interface JwtPayloadCustom {
   sub: string;
-  role: string;
+  role: UserRole;
   accessCode: string;
   companyId: string;
   iat?: number;
