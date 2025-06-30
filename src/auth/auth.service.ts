@@ -1,6 +1,8 @@
 import { NotFoundError } from "../errors";
+import { UnauthorizedError } from "../errors/UnauthorizedError";
 import prisma from "../prisma";
-import { hashPassword } from "../utils/hash";
+import { comparePasswords, hashPassword } from "../utils/hash";
+import { generateToken } from "../utils/jwt";
 import { CompanyValidator, UserValidator } from "../validations";
 
 export async function registerCompany(data: {
@@ -30,7 +32,6 @@ export async function registerUser(data: {
   fullName: string;
   password: string;
 }) {
-
   const formattedAccessCode = data.accessCode.toUpperCase();
 
   const company = await prisma.company.findUnique({
@@ -54,6 +55,7 @@ export async function registerUser(data: {
   });
 
   const role = existingUsersCount === 0 ? "ADMIN" : "SELLER";
+  const isActive = existingUsersCount === 0 ? true : false;
 
   const user = await prisma.user.create({
     data: {
@@ -63,6 +65,7 @@ export async function registerUser(data: {
       fullName: data.fullName,
       password: hashedPassword,
       role: role,
+      isActive: isActive,
     },
     select: {
       id: true,
@@ -77,4 +80,51 @@ export async function registerUser(data: {
   });
 
   return user;
+}
+
+export async function login(data: {
+  accessCode: string;
+  email?: string;
+  userName?: string;
+  password: string;
+}) {
+  const formattedAccessCode = data.accessCode.toUpperCase();
+
+  const company = await prisma.company.findUnique({
+    where: { accessCode: formattedAccessCode },
+  });
+
+  if (!company) {
+    throw new NotFoundError("Empresa não encontrada");
+  }
+
+  const user = await prisma.user.findFirst({
+    where: {
+      companyId: company.id,
+      OR: [{ email: data.email }, { username: data.userName }],
+    },
+  });
+
+  if (!user) {
+    throw new UnauthorizedError("Credenciais inválidas");
+  }
+
+  if (!user.isActive) {
+    throw new UnauthorizedError("Aguardando autorização do administrador");
+  }
+
+  const passwordMatch = await comparePasswords(data.password, user.password);
+
+  if (!passwordMatch) {
+    throw new UnauthorizedError("Credenciais inválidas");
+  }
+
+  const token = generateToken({
+    sub: user.id,
+    role: user.role,
+    accessCode: company.accessCode,
+    companyId: company.id,
+  });
+
+  return token;
 }

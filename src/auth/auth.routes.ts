@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { accessCompany, createCompany, createUser } from "./auth.controller";
+import { accessCompany, createCompany, createUser, login } from "./auth.controller";
 import { validate } from "../middlewares/validate";
-import { createCompanySchema, createUserSchema, verifyAccessCodeSchema } from "../validations";
+import { createCompanySchema, createUserSchema, LoginSchema, verifyAccessCodeSchema } from "../validations";
 
 const router = Router();
 
@@ -133,5 +133,52 @@ router.post("/access/company", validate(verifyAccessCodeSchema), accessCompany);
  *         description: Erro interno no servidor
  */
 router.post("/register/user/:accessCode", validate(createUserSchema), createUser);
+
+/**
+ * @swagger
+ * /auth/login/{accessCode}:
+ *   post:
+ *     tags:
+ *       - Auth
+ *     summary: Realiza o login e recebe o token
+ *     parameters:
+ *       - in: path
+ *         name: accessCode
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Código de acesso da empresa
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - password
+ *             optional:
+ *               - username
+ *               - email
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: JonhDoe@email.com
+ *               userName:
+ *                 type: string
+ *                 example: JonhDoe123
+ *               password:
+ *                 type: string
+ *                 example: 123456
+ *     responses:
+ *       200:
+ *         description: Usuário criado com sucesso
+ *       400:
+ *         description: Erro de validação
+ *       401:
+ *         description: Credenciais invalidas ou aguardando autorização
+ *       500:
+ *         description: Erro interno no servidor
+ */
+router.post("/login/:accessCode", validate(LoginSchema), login);
 
 export default router;

@@ -35,7 +35,7 @@ describe("Zod field validations", () => {
     expect(result.success).toBe(false);
     if (!result.success) {
       expect(result.error.format()._errors).toContain(
-        "Código da empresa deve conter 3 letras seguidas de 3 números"
+        "Código da empresa deve conter 3 letras maiúsculas seguidas de 3 números"
       );
     }
   });

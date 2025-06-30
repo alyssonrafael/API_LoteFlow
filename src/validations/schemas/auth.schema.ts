@@ -25,3 +25,11 @@ export const createUserSchema = z.object({
   fullName: fullNameField,
   password: passwordField,
 });
+
+export const LoginSchema = z.object({
+  email:emailField.optional(),
+  userName:userNameField.optional(),
+  password:passwordField
+}).refine((data)=>data.email||data.userName,{
+  message: "É necessário informar email ou username"
+})

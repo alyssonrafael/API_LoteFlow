@@ -61,10 +61,29 @@ export async function createUser(
     });
 
     res.status(201).json({
-      message: "Usuario criado com sucesso! Aguarde a altorização do Administrador ",
+      message:
+        "Usuario criado com sucesso! Aguarde a altorização do Administrador ",
       user,
     });
     return;
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function login(req: Request, res: Response, next: NextFunction) {
+  const { accessCode } = req.params;
+  const { email, userName, password } = req.body;
+
+  try {
+    const data = { accessCode, email, userName, password };
+
+    const token = await authService.login(data);
+
+    res.status(200).json({
+      message: "Autenticado com sucesso",
+      token,
+    });
   } catch (error) {
     next(error);
   }
