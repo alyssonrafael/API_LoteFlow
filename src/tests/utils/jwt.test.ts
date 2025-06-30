@@ -2,11 +2,12 @@
 import jwt from "jsonwebtoken";
 import { JwtPayloadCustom } from "../../types/jwtPayload";
 import { generateToken, verifyToken } from "../../utils/jwt";
+import { UserRole } from "../../types/types";
 
 describe("JWT Utils", () => {
   const payload: JwtPayloadCustom = {
     sub: "user-id-123",
-    role: "ADMIN",
+    role: UserRole.ADMIN,
     companyId: "company-id-456",
     accessCode: "ABC123"
   };
