@@ -1,7 +1,21 @@
 import { Router } from "express";
-import { accessCompany, createCompany, createUser, login, requestPasswordReset, resertPassword } from "./auth.controller";
+import {
+  accessCompany,
+  createCompany,
+  createUser,
+  login,
+  requestPasswordReset,
+  resertPassword,
+} from "./auth.controller";
 import { validate } from "../middlewares/validate";
-import { createCompanySchema, createUserSchema, LoginSchema, RequestPasswordResetSchema, ResetPasswordSchema, verifyAccessCodeSchema } from "../validations";
+import {
+  createCompanySchema,
+  createUserSchema,
+  loginSchema,
+  requestPasswordResetSchema,
+  resetPasswordSchema,
+  verifyAccessCodeSchema,
+} from "../validations";
 
 const router = Router();
 
@@ -84,18 +98,11 @@ router.post("/access/company", validate(verifyAccessCodeSchema), accessCompany);
 
 /**
  * @swagger
- * /auth/register/user/{accessCode}:
+ * /auth/register/user:
  *   post:
  *     tags:
  *       - Auth
  *     summary: Registra um usuário vinculado a uma empresa pelo accessCode
- *     parameters:
- *       - in: path
- *         name: accessCode
- *         required: true
- *         schema:
- *           type: string
- *         description: Código de acesso da empresa
  *     requestBody:
  *       required: true
  *       content:
@@ -103,11 +110,15 @@ router.post("/access/company", validate(verifyAccessCodeSchema), accessCompany);
  *           schema:
  *             type: object
  *             required:
+ *               - accessCode
  *               - fullName
  *               - email
  *               - userName
  *               - password
  *             properties:
+ *               accessCode:
+ *                 type: string
+ *                 example: ALL001
  *               fullName:
  *                 type: string
  *                 example: Jonh Doe
@@ -132,22 +143,15 @@ router.post("/access/company", validate(verifyAccessCodeSchema), accessCompany);
  *       500:
  *         description: Erro interno no servidor
  */
-router.post("/register/user/:accessCode", validate(createUserSchema), createUser);
+router.post("/register/user", validate(createUserSchema), createUser);
 
 /**
  * @swagger
- * /auth/login/{accessCode}:
+ * /auth/login:
  *   post:
  *     tags:
  *       - Auth
  *     summary: Realiza o login e recebe o token
- *     parameters:
- *       - in: path
- *         name: accessCode
- *         required: true
- *         schema:
- *           type: string
- *         description: Código de acesso da empresa
  *     requestBody:
  *       required: true
  *       content:
@@ -155,11 +159,15 @@ router.post("/register/user/:accessCode", validate(createUserSchema), createUser
  *           schema:
  *             type: object
  *             required:
+ *               - accessCode
  *               - password
  *             optional:
  *               - username
  *               - email
  *             properties:
+ *               accessCode:
+ *                 type: string
+ *                 example: ALL001
  *               email:
  *                 type: string
  *                 example: JonhDoe@email.com
@@ -179,10 +187,80 @@ router.post("/register/user/:accessCode", validate(createUserSchema), createUser
  *       500:
  *         description: Erro interno no servidor
  */
-router.post("/login/:accessCode", validate(LoginSchema), login);
+router.post("/login", validate(loginSchema), login);
 
-router.post("/request/password-reset/:accessCode", validate(RequestPasswordResetSchema), requestPasswordReset)
+/**
+ * @swagger
+ * /auth/request/password-reset:
+ *   post:
+ *     tags:
+ *       - Auth
+ *     summary: Realiza a solicitação de recuperação de senha
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - accessCode
+ *               - email
+ *             properties:
+ *               accessCode:
+ *                 type: string
+ *                 example: ALL001
+ *               email:
+ *                 type: string
+ *                 example: JonhDoe@email.com
+ *     responses:
+ *       200:
+ *         description: Email enviado com sucesso
+ *       400:
+ *         description: Erro de validação
+ *       404:
+ *         description: Não encontrou empresa ou usuário
+ *       500:
+ *         description: Erro interno no servidor
+ */
+router.post(
+  "/request/password-reset",
+  validate(requestPasswordResetSchema),
+  requestPasswordReset
+);
 
-router.post("/password-reset", validate(ResetPasswordSchema), resertPassword)
+/**
+ * @swagger
+ * /auth/password-reset:
+ *   post:
+ *     tags:
+ *       - Auth
+ *     summary: Faz a troca da senha com o codigo enviado no e-mail
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - newPassword
+ *               - tokenOrCode
+ *             properties:
+ *               newPassword:
+ *                 type: string
+ *                 example: 123456
+ *               tokenOrCode:
+ *                 type: string
+ *                 example: xxxxxxx
+ *     responses:
+ *       200:
+ *         description: Senha redefinida com succeso
+ *       400:
+ *         description: Erro de validação
+ *       404:
+ *         description: Token ou códigos inválidos ou expirados
+ *       500:
+ *         description: Erro interno no servidor
+ */
+router.post("/password-reset", validate(resetPasswordSchema), resertPassword);
 
 export default router;

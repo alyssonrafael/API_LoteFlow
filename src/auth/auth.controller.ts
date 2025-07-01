@@ -6,14 +6,8 @@ export async function createCompany(
   res: Response,
   next: NextFunction
 ) {
-  const { accessCode, name, cnpj } = req.body;
-
   try {
-    const company = await authService.registerCompany({
-      accessCode,
-      name,
-      cnpj,
-    });
+    const company = await authService.registerCompany(req.body);
 
     res.status(201).json({
       message: "Empresa criada com sucesso!",
@@ -30,12 +24,11 @@ export async function accessCompany(
   res: Response,
   next: NextFunction
 ) {
-  const { accessCode } = req.body;
   try {
-    await authService.accessCompany(accessCode);
+    const response = await authService.accessCompany(req.body);
     res.status(200).json({
       message: "Entrou na empresa",
-      accessCode: accessCode,
+      accessCode: response,
     });
     return;
   } catch (error) {
@@ -48,18 +41,8 @@ export async function createUser(
   res: Response,
   next: NextFunction
 ) {
-  const { accessCode } = req.params;
-  const { email, userName, fullName, password } = req.body;
-
   try {
-    const user = await authService.registerUser({
-      accessCode,
-      email,
-      userName,
-      fullName,
-      password,
-    });
-
+    const user = await authService.registerUser(req.body);
     res.status(201).json({
       message:
         "Usuario criado com sucesso! Aguarde a altorização do Administrador ",
@@ -72,13 +55,8 @@ export async function createUser(
 }
 
 export async function login(req: Request, res: Response, next: NextFunction) {
-  const { accessCode } = req.params;
-  const { email, userName, password } = req.body;
-
   try {
-    const data = { accessCode, email, userName, password };
-
-    const token = await authService.login(data);
+    const token = await authService.login(req.body);
 
     res.status(200).json({
       message: "Autenticado com sucesso",
@@ -94,13 +72,8 @@ export async function requestPasswordReset(
   res: Response,
   next: NextFunction
 ) {
-  const { accessCode } = req.params;
-  const { email } = req.body;
-
   try {
-    const data = { accessCode, email };
-
-    await authService.requestPasswordReset(data);
+    await authService.requestPasswordReset(req.body);
     res.status(200).json({
       message: "E-mail de recuperção enviado!",
     });
@@ -114,12 +87,8 @@ export async function resertPassword(
   res: Response,
   next: NextFunction
 ) {
-  const { newPassword, tokenOrCode } = req.body;
-
   try {
-    const data = { newPassword, tokenOrCode };
-
-    await authService.resetPassword(data);
+    await authService.resetPassword(req.body);
     res.status(200).json({
       message: "Senha redefinida com sucesso!",
     });

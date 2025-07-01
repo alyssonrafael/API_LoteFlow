@@ -5,13 +5,18 @@ import { generateShortToken } from "../utils/code";
 import { comparePasswords, hashPassword } from "../utils/hash";
 import { generateToken } from "../utils/jwt";
 import { sendResetEmail } from "../utils/mailer";
-import { CompanyValidator, UserValidator } from "../validations";
+import {
+  CompanyValidator,
+  UserValidator,
+  CreateCompanySchema,
+  CreateUserSchema,
+  LoginSchema,
+  RequestPasswordResetSchema,
+  ResetPasswordSchema,
+  VerifyAccessCodeSchema,
+} from "../validations";
 
-export async function registerCompany(data: {
-  accessCode: string;
-  name: string;
-  cnpj: string;
-}) {
+export async function registerCompany(data: CreateCompanySchema) {
   //valida a uniquidade
   const validator = new CompanyValidator(prisma);
   await validator.validateUniqueCnpj(data.cnpj);
@@ -20,24 +25,16 @@ export async function registerCompany(data: {
   return prisma.company.create({ data });
 }
 
-export async function accessCompany(accessCode: string) {
+export async function accessCompany(data: VerifyAccessCodeSchema) {
   const validator = new CompanyValidator(prisma);
-  await validator.validateExistingAccessCode(accessCode);
+  await validator.validateExistingAccessCode(data.accessCode);
 
-  return accessCode;
+  return data.accessCode;
 }
 
-export async function registerUser(data: {
-  accessCode: string;
-  email: string;
-  userName: string;
-  fullName: string;
-  password: string;
-}) {
-  const formattedAccessCode = data.accessCode.toUpperCase();
-
+export async function registerUser(data: CreateUserSchema) {
   const company = await prisma.company.findUnique({
-    where: { accessCode: formattedAccessCode },
+    where: { accessCode: data.accessCode },
   });
 
   if (!company) {
@@ -84,16 +81,9 @@ export async function registerUser(data: {
   return user;
 }
 
-export async function login(data: {
-  accessCode: string;
-  email?: string;
-  userName?: string;
-  password: string;
-}) {
-  const formattedAccessCode = data.accessCode.toUpperCase();
-
+export async function login(data: LoginSchema) {
   const company = await prisma.company.findUnique({
-    where: { accessCode: formattedAccessCode },
+    where: { accessCode: data.accessCode },
   });
 
   if (!company) {
@@ -131,14 +121,9 @@ export async function login(data: {
   return token;
 }
 
-export async function requestPasswordReset(data: {
-  accessCode: string;
-  email: string;
-}) {
-  const formattedAccessCode = data.accessCode.toUpperCase();
-
+export async function requestPasswordReset(data: RequestPasswordResetSchema) {
   const company = await prisma.company.findUnique({
-    where: { accessCode: formattedAccessCode },
+    where: { accessCode: data.accessCode },
     include: { users: true },
   });
 
@@ -180,10 +165,7 @@ export async function requestPasswordReset(data: {
   return;
 }
 
-export async function resetPassword(data: {
-  newPassword: string;
-  tokenOrCode: string;
-}) {
+export async function resetPassword(data: ResetPasswordSchema) {
   const resetRecord = await prisma.passwordResetToken.findFirst({
     where: {
       OR: [{ token: data.tokenOrCode }, { code: data.tokenOrCode }],
