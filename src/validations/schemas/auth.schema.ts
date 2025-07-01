@@ -26,10 +26,21 @@ export const createUserSchema = z.object({
   password: passwordField,
 });
 
-export const LoginSchema = z.object({
-  email:emailField.optional(),
-  userName:userNameField.optional(),
-  password:passwordField
-}).refine((data)=>data.email||data.userName,{
-  message: "É necessário informar email ou username"
+export const LoginSchema = z
+  .object({
+    email: emailField.optional(),
+    userName: userNameField.optional(),
+    password: passwordField,
+  })
+  .refine((data) => data.email || data.userName, {
+    message: "É necessário informar email ou username",
+  });
+
+export const RequestPasswordResetSchema = z.object({
+  email: emailField,
+});
+
+export const ResetPasswordSchema = z.object({
+  newPassword: passwordField,
+  tokenOrCode: z.string() 
 })

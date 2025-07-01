@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { accessCompany, createCompany, createUser, login } from "./auth.controller";
+import { accessCompany, createCompany, createUser, login, requestPasswordReset, resertPassword } from "./auth.controller";
 import { validate } from "../middlewares/validate";
-import { createCompanySchema, createUserSchema, LoginSchema, verifyAccessCodeSchema } from "../validations";
+import { createCompanySchema, createUserSchema, LoginSchema, RequestPasswordResetSchema, ResetPasswordSchema, verifyAccessCodeSchema } from "../validations";
 
 const router = Router();
 
@@ -180,5 +180,9 @@ router.post("/register/user/:accessCode", validate(createUserSchema), createUser
  *         description: Erro interno no servidor
  */
 router.post("/login/:accessCode", validate(LoginSchema), login);
+
+router.post("/request/password-reset/:accessCode", validate(RequestPasswordResetSchema), requestPasswordReset)
+
+router.post("/password-reset", validate(ResetPasswordSchema), resertPassword)
 
 export default router;

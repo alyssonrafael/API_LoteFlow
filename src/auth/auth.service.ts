@@ -1,8 +1,10 @@
 import { NotFoundError } from "../errors";
 import { UnauthorizedError } from "../errors/UnauthorizedError";
 import prisma from "../prisma";
+import { generateShortToken } from "../utils/code";
 import { comparePasswords, hashPassword } from "../utils/hash";
 import { generateToken } from "../utils/jwt";
+import { sendResetEmail } from "../utils/mailer";
 import { CompanyValidator, UserValidator } from "../validations";
 
 export async function registerCompany(data: {
@@ -127,4 +129,88 @@ export async function login(data: {
   });
 
   return token;
+}
+
+export async function requestPasswordReset(data: {
+  accessCode: string;
+  email: string;
+}) {
+  const formattedAccessCode = data.accessCode.toUpperCase();
+
+  const company = await prisma.company.findUnique({
+    where: { accessCode: formattedAccessCode },
+    include: { users: true },
+  });
+
+  if (!company) {
+    throw new NotFoundError("Empresa não encontrada");
+  }
+
+  const user = company.users.find((u) => u.email === data.email);
+
+  if (!user) {
+    throw new NotFoundError("Usuário não encontrado.");
+  }
+
+  const resetToken = generateShortToken(32);
+  const code = generateShortToken(6);
+  const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+
+  await prisma.passwordResetToken.deleteMany({
+    where: { userId: user.id },
+  });
+
+  await prisma.passwordResetToken.create({
+    data: {
+      userId: user.id,
+      token: resetToken,
+      code,
+      expiresAt,
+    },
+  });
+
+  // Envia o e-mail
+  await sendResetEmail({
+    to: user.email,
+    name: user.fullName,
+    code,
+    token: resetToken,
+  });
+
+  return;
+}
+
+export async function resetPassword(data: {
+  newPassword: string;
+  tokenOrCode: string;
+}) {
+  const resetRecord = await prisma.passwordResetToken.findFirst({
+    where: {
+      OR: [{ token: data.tokenOrCode }, { code: data.tokenOrCode }],
+      expiresAt: {
+        gte: new Date(),
+      },
+    },
+    include: {
+      user: true,
+    },
+  });
+
+  if (!resetRecord) {
+    throw new NotFoundError("Token ou código inválido ou expirado.");
+  }
+
+  const hashedPassword = await hashPassword(data.newPassword);
+
+  await prisma.user.update({
+    where: { id: resetRecord.userId },
+    data: { password: hashedPassword },
+  });
+
+  // Remove o token após uso
+  await prisma.passwordResetToken.delete({
+    where: { id: resetRecord.id },
+  });
+
+  return;
 }

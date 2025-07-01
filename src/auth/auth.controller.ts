@@ -88,3 +88,42 @@ export async function login(req: Request, res: Response, next: NextFunction) {
     next(error);
   }
 }
+
+export async function requestPasswordReset(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const { accessCode } = req.params;
+  const { email } = req.body;
+
+  try {
+    const data = { accessCode, email };
+
+    await authService.requestPasswordReset(data);
+    res.status(200).json({
+      message: "E-mail de recuperção enviado!",
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function resertPassword(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const { newPassword, tokenOrCode } = req.body;
+
+  try {
+    const data = { newPassword, tokenOrCode };
+
+    await authService.resetPassword(data);
+    res.status(200).json({
+      message: "Senha redefinida com sucesso!",
+    });
+  } catch (error) {
+    next(error);
+  }
+}

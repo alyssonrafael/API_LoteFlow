@@ -46,4 +46,18 @@ model User {
 
   @@unique([companyId, username])
   @@unique([companyId, email])
+  PasswordResetToken PasswordResetToken[]
 }
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade) //cascade para caso de deleção
+  token     String   @unique @db.VarChar(255)
+  code      String   @db.VarChar(6)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
