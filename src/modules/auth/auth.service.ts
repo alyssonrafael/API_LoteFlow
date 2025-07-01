@@ -1,10 +1,10 @@
-import { NotFoundError } from "../errors";
-import { UnauthorizedError } from "../errors/UnauthorizedError";
-import prisma from "../prisma";
-import { generateShortToken } from "../utils/code";
-import { comparePasswords, hashPassword } from "../utils/hash";
-import { generateToken } from "../utils/jwt";
-import { sendResetEmail } from "../utils/mailer";
+import { NotFoundError } from "../../errors";
+import { UnauthorizedError } from "../../errors/UnauthorizedError";
+import prisma from "../../prisma";
+import { generateShortToken } from "../../utils/code";
+import { comparePasswords, hashPassword } from "../../utils/hash";
+import { generateToken } from "../../utils/jwt";
+import { sendResetEmail } from "../../utils/mailer";
 import {
   CompanyValidator,
   UserValidator,
@@ -14,7 +14,7 @@ import {
   RequestPasswordResetSchema,
   ResetPasswordSchema,
   VerifyAccessCodeSchema,
-} from "../validations";
+} from "../../validations";
 
 export async function registerCompany(data: CreateCompanySchema) {
   //valida a uniquidade

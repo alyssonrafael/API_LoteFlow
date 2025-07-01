@@ -1,8 +1,8 @@
 import express from "express";
 import dotenv from "dotenv";
-import { testConnection } from "./config/testConnection";
+import { testConnection } from "./utils/testConnection";
 import { setupSwagger } from "./swagger";
-import authRoutes from "./auth/auth.routes";
+import authRoutes from "./modules/auth/auth.routes";
 import { errorHandler } from "./middlewares/errorHandle";
 
 dotenv.config();

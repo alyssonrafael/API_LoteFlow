@@ -7,7 +7,7 @@ import {
   requestPasswordReset,
   resertPassword,
 } from "./auth.controller";
-import { validate } from "../middlewares/validate";
+import { validate } from "../../middlewares/validate";
 import {
   createCompanySchema,
   createUserSchema,
@@ -15,7 +15,7 @@ import {
   requestPasswordResetSchema,
   resetPasswordSchema,
   verifyAccessCodeSchema,
-} from "../validations";
+} from "../../validations";
 
 const router = Router();
 
