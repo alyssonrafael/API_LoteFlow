@@ -2,11 +2,29 @@ import { ZodError, ZodTypeAny } from "zod";
 import { Request, Response, NextFunction } from "express";
 import { ValidationError } from "../errors/ValidationError";
 
+type RequestPart = "body" | "query" | "params";
+
+// Estende o tipo do Request para aceitar "validated"
+declare module "express-serve-static-core" {
+  interface Request {
+    validated?: any;
+    validatedParams?: any;
+    validatedBody?: any;
+    validatedQuery?: any;
+  }
+}
+
 export const validate =
-  (schema: ZodTypeAny) =>
+  (schema: ZodTypeAny, part: RequestPart = "body") =>
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      req.body = await schema.parseAsync(req.body);
+      const parsed = await schema.parseAsync(req[part]);
+      const key = `validated${part.charAt(0).toUpperCase() + part.slice(1)}` as
+        | "validatedBody"
+        | "validatedParams"
+        | "validatedQuery";
+
+      req[key] = parsed;
       next();
     } catch (error) {
       // Formata os erros de validação para uma estrutura mais legível

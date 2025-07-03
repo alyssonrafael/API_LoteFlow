@@ -43,7 +43,7 @@ export async function registerUser(data: CreateUserSchema) {
 
   const validator = new UserValidator(prisma);
   await validator.validateUniqueEmail(company.id, data.email);
-  await validator.validateUniqueUserName(company.id, data.userName);
+  await validator.validateUniqueUserName(company.id, data.username);
 
   const hashedPassword = await hashPassword(data.password);
 
@@ -60,7 +60,7 @@ export async function registerUser(data: CreateUserSchema) {
     data: {
       companyId: company.id,
       email: data.email,
-      username: data.userName,
+      username: data.username,
       fullName: data.fullName,
       password: hashedPassword,
       role: role,
@@ -93,7 +93,7 @@ export async function login(data: LoginSchema) {
   const user = await prisma.user.findFirst({
     where: {
       companyId: company.id,
-      OR: [{ email: data.email }, { username: data.userName }],
+      OR: [{ email: data.email }, { username: data.username }],
     },
   });
 

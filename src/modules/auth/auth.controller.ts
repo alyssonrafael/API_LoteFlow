@@ -7,7 +7,7 @@ export async function createCompany(
   next: NextFunction
 ) {
   try {
-    const company = await authService.registerCompany(req.body);
+    const company = await authService.registerCompany(req.validatedBody);
 
     res.status(201).json({
       message: "Empresa criada com sucesso!",
@@ -25,7 +25,7 @@ export async function accessCompany(
   next: NextFunction
 ) {
   try {
-    const response = await authService.accessCompany(req.body);
+    const response = await authService.accessCompany(req.validatedBody);
     res.status(200).json({
       message: "Entrou na empresa",
       accessCode: response,
@@ -42,7 +42,7 @@ export async function createUser(
   next: NextFunction
 ) {
   try {
-    const user = await authService.registerUser(req.body);
+    const user = await authService.registerUser(req.validatedBody);
     res.status(201).json({
       message:
         "Usuario criado com sucesso! Aguarde a altorização do Administrador ",
@@ -56,7 +56,7 @@ export async function createUser(
 
 export async function login(req: Request, res: Response, next: NextFunction) {
   try {
-    const token = await authService.login(req.body);
+    const token = await authService.login(req.validatedBody);
 
     res.status(200).json({
       message: "Autenticado com sucesso",
@@ -73,7 +73,7 @@ export async function requestPasswordReset(
   next: NextFunction
 ) {
   try {
-    await authService.requestPasswordReset(req.body);
+    await authService.requestPasswordReset(req.validatedBody);
     res.status(200).json({
       message: "E-mail de recuperção enviado!",
     });
@@ -88,7 +88,7 @@ export async function resertPassword(
   next: NextFunction
 ) {
   try {
-    await authService.resetPassword(req.body);
+    await authService.resetPassword(req.validatedBody);
     res.status(200).json({
       message: "Senha redefinida com sucesso!",
     });

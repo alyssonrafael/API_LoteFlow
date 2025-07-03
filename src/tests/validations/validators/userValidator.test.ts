@@ -1,4 +1,4 @@
-import { ConflictError } from "../../../errors";
+import { ConflictError, NotFoundError } from "../../../errors";
 import { UserValidator } from "../../../validations";
 
 
@@ -10,6 +10,9 @@ describe("UserValidator", () => {
   };
 
   const validator = new UserValidator(mockPrisma as any);
+
+  const userId = "user-123";
+  const companyId = "company-456";
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -56,6 +59,43 @@ describe("UserValidator", () => {
       await expect(
         validator.validateUniqueEmail("empresa1", "teste@email.com")
       ).resolves.toBeUndefined();
+    });
+  });
+
+describe("validateUserBelongsToCompanyOrFail", () => {
+    it("deve retornar o usuário se ele pertencer à empresa", async () => {
+      const mockUser = {
+        id: userId,
+        companyId,
+        email: "teste@email.com",
+        fullName: "Usuário Teste",
+        username: "testuser",
+        isActive: true,
+        role: "SELLER",
+        createdAt: new Date(),
+      };
+
+      mockPrisma.user.findFirst.mockResolvedValueOnce(mockUser);
+
+      const result = await validator.validateUserBelongsToCompanyOrFail(userId, companyId);
+
+      expect(mockPrisma.user.findFirst).toHaveBeenCalledWith({
+        where: { id: userId, companyId },
+      });
+
+      expect(result).toEqual(mockUser);
+    });
+
+    it("deve lançar NotFoundError se o usuário não pertencer à empresa", async () => {
+      mockPrisma.user.findFirst.mockResolvedValueOnce(null);
+
+      await expect(
+        validator.validateUserBelongsToCompanyOrFail(userId, companyId)
+      ).rejects.toThrow(NotFoundError);
+
+      expect(mockPrisma.user.findFirst).toHaveBeenCalledWith({
+        where: { id: userId, companyId },
+      });
     });
   });
 });

@@ -24,7 +24,7 @@ export type VerifyAccessCodeSchema = z.infer<typeof verifyAccessCodeSchema>;
 export const createUserSchema = z.object({
   accessCode: companyCodeField,
   email: emailField,
-  userName: userNameField,
+  username: userNameField,
   fullName: fullNameField,
   password: passwordField,
 });
@@ -34,10 +34,11 @@ export const loginSchema = z
   .object({
     accessCode: companyCodeField,
     email: emailField.optional(),
-    userName: userNameField.optional(),
+    username: userNameField.optional(),
     password: passwordField,
   })
-  .refine((data) => data.email || data.userName, {
+  .refine((data) => data.email || data.username, {
+    path: ["Refine"],
     message: "É necessário informar email ou username",
   });
 export type LoginSchema = z.infer<typeof loginSchema>;
