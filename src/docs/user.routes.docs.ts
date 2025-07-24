@@ -7,6 +7,48 @@
 
 /**
  * @swagger
+ * /user/info:
+ *   get:
+ *     tags:
+ *       - User
+ *     summary: Lista dados do usuário logado
+ *     description: Retorna dados de nome, email, criação e nome da empresa
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Dados do usuário
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 fullName:
+ *                   type: string
+ *                   example: admin
+ *                 email:
+ *                   type: string
+ *                   example: adminteste@mail.com
+ *                 createdAt:
+ *                   type: string
+ *                   format: date-time
+ *                   example: 2025-07-23T00:43:08.726Z
+ *                 company:
+ *                   type: object
+ *                   properties:
+ *                     name:
+ *                       type: string
+ *                       example: Minha Empresa
+ *       401:
+ *         description: Token inválido ou ausente
+ *       403:
+ *         description: Acesso proibido (usuário sem permissão)
+ *       500:
+ *         description: Erro interno do servidor
+ */
+
+/**
+ * @swagger
  * /users:
  *   get:
  *     tags:

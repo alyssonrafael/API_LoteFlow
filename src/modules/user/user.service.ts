@@ -11,6 +11,29 @@ import {
   UserValidator,
 } from "../../validations";
 
+export async function getUserData(companyId: string, userId: string) {
+  const user = await prisma.user.findFirst({
+    where: {
+      id: userId,
+      companyId,
+    },
+    select: {
+      fullName: true,
+      email: true,
+      createdAt: true,
+      company:{
+        select:{
+          name:true, 
+        }
+      }
+    },
+  });
+  if (!user) {
+    throw new NotFoundError("Usuário não encontrado");
+  }
+  return user;
+}
+
 export async function findAllByAccessCode(
   companyId: string,
   filters: GetAllUsersSchema

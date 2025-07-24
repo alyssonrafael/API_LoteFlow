@@ -1,5 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
+import cors from "cors"
 import { testConnection } from "./utils/testConnection";
 import { setupSwagger } from "./swagger";
 import authRoutes from "./modules/auth/auth.routes";
@@ -9,6 +10,11 @@ import { errorHandler } from "./middlewares/errorHandle";
 dotenv.config();
 
 const app = express();
+app.use(cors({
+  origin: ["http://localhost:3000"],
+  methods: ["GET", "POST", "PUT","PATCH", "DELETE"],
+  credentials: true
+}));
 app.use(express.json());
 const PORT = process.env.PORT || 3000;
 

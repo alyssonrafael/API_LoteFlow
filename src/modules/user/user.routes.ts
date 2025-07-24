@@ -3,6 +3,7 @@ import { checkRole, validateToken } from "../../middlewares/authMiddleware";
 import {
   getAllUsers,
   getUserById,
+  getUserData,
   updateLoggedUser,
   updatePassword,
   updateUserRole,
@@ -21,6 +22,12 @@ import { validate } from "../../middlewares/validate";
 const router = Router();
 
 router.use(validateToken);
+
+router.get(
+  "/user/info",
+  checkRole.all(),
+  getUserData
+)
 
 router.get(
   "/users",
